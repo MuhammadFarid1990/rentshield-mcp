@@ -1,0 +1,32 @@
+[
+  {
+    "id": "conf-01",
+    "description": "BP logging requires confirmation",
+    "input": "My blood pressure is 130 over 80",
+    "assertions": { "intent": "log_bp", "requiresConfirmation": true }
+  },
+  {
+    "id": "conf-02",
+    "description": "Medicine taken requires confirmation",
+    "input": "I took my medicine",
+    "assertions": { "intent": "mark_med_taken", "requiresConfirmation": true }
+  },
+  {
+    "id": "conf-03",
+    "description": "Visit request requires confirmation",
+    "input": "I want to visit the senior care center tomorrow",
+    "assertions": { "intent": "create_visit_request", "requiresConfirmation": true }
+  },
+  {
+    "id": "conf-04",
+    "description": "Reading day does NOT require confirmation",
+    "input": "What is on my calendar today?",
+    "assertions": { "intent": "read_day", "requiresConfirmation": false }
+  },
+  {
+    "id": "conf-05",
+    "description": "Mood logging does NOT require confirmation",
+    "input": "I feel good today",
+    "assertions": { "intent": "log_mood", "requiresConfirmation": false }
+  }
+]

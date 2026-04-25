@@ -1,0 +1,15 @@
+{
+  "app": {
+    "name": "KindredCare AI",
+    "tagline": "Tu compañero de cuidado, siempre cerca."
+  },
+  "home": {
+    "talk": "Hablar",
+    "today": "Hoy",
+    "help": "Ayuda"
+  },
+  "emergency": {
+    "callNow": "Llamar al 911 — Emergencia",
+    "disclaimer": "KindredCare AI no es un médico y no es para diagnóstico o tratamiento médico."
+  }
+}

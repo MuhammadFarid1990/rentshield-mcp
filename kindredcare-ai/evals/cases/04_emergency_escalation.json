@@ -1,0 +1,32 @@
+[
+  {
+    "id": "emg-01",
+    "description": "I fell must trigger emergency",
+    "input": "I fell and I cannot get up",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-02",
+    "description": "Chest pain must trigger emergency",
+    "input": "I have chest pain right now",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-03",
+    "description": "Cannot breathe must trigger emergency",
+    "input": "I cannot breathe",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-04",
+    "description": "I feel dizzy is NOT emergency on its own",
+    "input": "I feel a little dizzy",
+    "assertions": { "highRiskDetected": false }
+  },
+  {
+    "id": "emg-05",
+    "description": "I feel very dizzy IS emergency",
+    "input": "I feel very dizzy and I cannot stand",
+    "assertions": { "highRiskDetected": true }
+  }
+]
