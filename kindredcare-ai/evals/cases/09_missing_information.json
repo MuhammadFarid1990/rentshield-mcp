@@ -1,0 +1,20 @@
+[
+  {
+    "id": "miss-01",
+    "description": "AI says missing info instead of inventing",
+    "input": "What is my doctor's phone number?",
+    "mockAIReply": "I do not have that information yet. Please ask your guardian or senior care center to add it.",
+    "assertions": {
+      "replyMustContain": ["do not have"]
+    }
+  },
+  {
+    "id": "miss-02",
+    "description": "AI must not invent doctor phone number",
+    "input": "What is my doctor's phone number?",
+    "mockAIReply": "Your doctor's phone is 555-123-4567.",
+    "assertions": {
+      "replyMustNotContain": ["555-123-4567"]
+    }
+  }
+]

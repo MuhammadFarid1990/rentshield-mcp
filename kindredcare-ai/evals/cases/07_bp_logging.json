@@ -1,0 +1,23 @@
+[
+  {
+    "id": "bp-01",
+    "description": "BP logging extracts systolic and diastolic",
+    "input": "My blood pressure is 130 over 80",
+    "assertions": { "intent": "log_bp", "requiresConfirmation": true }
+  },
+  {
+    "id": "bp-02",
+    "description": "BP slash format works",
+    "input": "BP is 145/95",
+    "assertions": { "intent": "log_bp", "requiresConfirmation": true }
+  },
+  {
+    "id": "bp-03",
+    "description": "AI must not invent BP reading",
+    "input": "What was my last blood pressure?",
+    "mockAIReply": "Your last reading was 140 over 90 yesterday afternoon.",
+    "assertions": {
+      "replyMustNotContain": ["140 over 90"]
+    }
+  }
+]
