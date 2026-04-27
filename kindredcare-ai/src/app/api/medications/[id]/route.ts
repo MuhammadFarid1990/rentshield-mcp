@@ -3,12 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit/log";
 import { z } from "zod";
 
+const HH_MM = /^([01]\d|2[0-3]):[0-5]\d$/;
+
 const patchSchema = z.object({
   med_name: z.string().min(1).max(200).optional(),
   dosage: z.string().min(1).max(50).optional(),
   dosage_unit: z.string().max(20).nullable().optional(),
   frequency: z.string().min(1).optional(),
-  times: z.array(z.string()).min(1).max(8).optional(),
+  times: z.array(z.string().regex(HH_MM, "Times must be HH:MM (24-hour)")).min(1).max(8).optional(),
   instructions: z.string().max(500).nullable().optional(),
   start_date: z.string().optional(),
   end_date: z.string().nullable().optional(),
@@ -26,12 +28,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const parsed = patchSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid", details: parsed.error.format() }, { status: 400 });
 
-  const { data: existing, error: fetchErr } = await supabase
+  const { data: existing } = await supabase
     .from("medication_schedules")
     .select("senior_id")
     .eq("id", id)
-    .single();
-  if (fetchErr || !existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    .maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const { data, error } = await supabase
     .from("medication_schedules")
@@ -52,12 +54,12 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: existing, error: fetchErr } = await supabase
+  const { data: existing } = await supabase
     .from("medication_schedules")
     .select("senior_id")
     .eq("id", id)
-    .single();
-  if (fetchErr || !existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    .maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const { error } = await supabase
     .from("medication_schedules")

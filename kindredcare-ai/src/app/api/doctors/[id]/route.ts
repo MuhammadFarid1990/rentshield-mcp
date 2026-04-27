@@ -22,12 +22,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const parsed = patchSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid", details: parsed.error.format() }, { status: 400 });
 
-  const { data: existing, error: fetchErr } = await supabase
+  const { data: existing } = await supabase
     .from("doctors")
     .select("senior_id")
     .eq("id", id)
-    .single();
-  if (fetchErr || !existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    .maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const { data, error } = await supabase
     .from("doctors")
@@ -48,12 +48,12 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: existing, error: fetchErr } = await supabase
+  const { data: existing } = await supabase
     .from("doctors")
     .select("senior_id")
     .eq("id", id)
-    .single();
-  if (fetchErr || !existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    .maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const { error } = await supabase.from("doctors").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

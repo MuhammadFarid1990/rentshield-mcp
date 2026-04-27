@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logAudit } from "@/lib/audit/log";
 import { z } from "zod";
+
+const HH_MM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const createSchema = z.object({
   seniorId: z.string().uuid(),
@@ -8,7 +11,7 @@ const createSchema = z.object({
   dosage: z.string().min(1).max(50),
   dosage_unit: z.string().max(20).optional(),
   frequency: z.string().min(1),
-  times: z.array(z.string()).min(1).max(8),
+  times: z.array(z.string().regex(HH_MM, "Times must be HH:MM (24-hour)")).min(1).max(8),
   instructions: z.string().max(500).optional(),
   start_date: z.string().optional(),
   end_date: z.string().nullable().optional(),
@@ -42,6 +45,8 @@ export async function POST(request: Request) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await logAudit(supabase, user.id, d.seniorId, "medication.create", { id: data.id, med_name: d.med_name });
   return NextResponse.json({ schedule: data });
 }
 

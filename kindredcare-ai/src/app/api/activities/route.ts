@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logAudit } from "@/lib/audit/log";
 import { z } from "zod";
 
 const schema = z.object({
@@ -39,5 +40,11 @@ export async function POST(request: Request) {
   }).select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await logAudit(supabase, user.id, null, "center_activity.create", {
+    id: data.id,
+    title: d.title,
+    care_center_id: d.careCenterId,
+  });
   return NextResponse.json({ activity: data });
 }

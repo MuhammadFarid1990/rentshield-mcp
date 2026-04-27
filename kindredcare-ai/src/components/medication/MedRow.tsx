@@ -106,7 +106,7 @@ export function MedRow({ med }: { med: MedicationSchedule }) {
   return (
     <div className="p-4 flex items-start justify-between gap-4">
       <div className="flex-1">
-        <p className="font-bold text-gray-900">💊 {med.med_name} {med.dosage}{med.dosage_unit ? med.dosage_unit : ""}</p>
+        <p className="font-bold text-gray-900">💊 {med.med_name} {med.dosage}{med.dosage_unit ? ` ${med.dosage_unit}` : ""}</p>
         <p className="text-sm text-gray-600">{med.frequency} — {(med.times ?? []).join(", ")}</p>
         {med.instructions && <p className="text-sm text-gray-500 mt-1 italic">{med.instructions}</p>}
       </div>
