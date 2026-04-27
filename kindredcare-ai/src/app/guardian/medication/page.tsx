@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { GuardianShell } from "@/components/layout/GuardianShell";
-import type { Senior, User } from "@/types/domain";
+import { MedForm } from "@/components/medication/MedForm";
+import { MedRow } from "@/components/medication/MedRow";
+import type { MedicationSchedule, Senior, User } from "@/types/domain";
 
 export default async function GuardianMedicationPage({ searchParams }: { searchParams: Promise<{ seniorId?: string }> }) {
   const supabase = await createClient();
@@ -39,26 +41,23 @@ export default async function GuardianMedicationPage({ searchParams }: { searchP
         )}
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">Active Schedules</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-3">Schedules</h2>
           {(meds ?? []).length === 0 ? (
             <p className="text-gray-500 bg-white border-2 border-gray-200 rounded-2xl p-6 text-center">No medications on file.</p>
           ) : (
             <div className="bg-white border-2 border-gray-200 rounded-2xl divide-y divide-gray-100">
-              {(meds ?? []).map((m) => (
-                <div key={m.id} className="p-4 flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <p className="font-bold text-gray-900">💊 {m.med_name} {m.dosage}</p>
-                    <p className="text-sm text-gray-600">{m.frequency} — {(m.times ?? []).join(", ")}</p>
-                    {m.instructions && <p className="text-sm text-gray-500 mt-1 italic">{m.instructions}</p>}
-                  </div>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${m.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                    {m.is_active ? "Active" : "Inactive"}
-                  </span>
-                </div>
+              {((meds ?? []) as MedicationSchedule[]).map((m) => (
+                <MedRow key={m.id} med={m} />
               ))}
             </div>
           )}
         </section>
+
+        {selectedId && (
+          <section>
+            <MedForm seniorId={selectedId} />
+          </section>
+        )}
 
         <section>
           <h2 className="text-xl font-bold text-gray-900 mb-3">Recent Dose Log</h2>

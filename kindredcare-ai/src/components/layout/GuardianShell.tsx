@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/guardian/calendar", label: "Calendar", emoji: "📅" },
   { href: "/guardian/medication", label: "Meds", emoji: "💊" },
   { href: "/guardian/health", label: "Health", emoji: "❤️" },
+  { href: "/guardian/contacts", label: "Contacts", emoji: "📋" },
   { href: "/guardian/alerts", label: "Alerts", emoji: "🔔" },
 ];
 

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const FREQUENCIES = ["once daily", "twice daily", "three times daily", "every 4 hours", "every 6 hours", "every 8 hours", "every 12 hours", "as needed"];
 
 export function MedForm({ seniorId, onSaved }: { seniorId: string; onSaved?: () => void }) {
+  const router = useRouter();
   const [form, setForm] = useState({
     med_name: "", dosage: "", dosage_unit: "mg", frequency: "once daily",
     times: "08:00", instructions: "",
@@ -25,6 +27,7 @@ export function MedForm({ seniorId, onSaved }: { seniorId: string; onSaved?: () 
       setMessage("Saved!");
       setForm({ med_name: "", dosage: "", dosage_unit: "mg", frequency: "once daily", times: "08:00", instructions: "" });
       onSaved?.();
+      router.refresh();
     } else {
       setMessage("Could not save.");
     }

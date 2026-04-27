@@ -2,9 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { GuardianShell } from "@/components/layout/GuardianShell";
 import { QuickAddRowGuardian } from "@/components/calendar/QuickAddRowGuardian";
-import { CALENDAR_EVENT_TYPES } from "@/lib/constants";
-import { format, parseISO, addDays, startOfDay, endOfDay } from "date-fns";
-import type { Senior, User } from "@/types/domain";
+import { EventRow } from "@/components/calendar/EventRow";
+import { addDays, startOfDay, endOfDay } from "date-fns";
+import type { CalendarEvent, Senior, User } from "@/types/domain";
 
 export default async function GuardianCalendarPage({ searchParams }: { searchParams: Promise<{ seniorId?: string }> }) {
   const supabase = await createClient();
@@ -72,19 +72,9 @@ export default async function GuardianCalendarPage({ searchParams }: { searchPar
                 </p>
               ) : (
                 <div className="bg-white border-2 border-gray-200 rounded-2xl divide-y divide-gray-100">
-                  {(events ?? []).map((e) => {
-                    const t = CALENDAR_EVENT_TYPES.find((x) => x.value === e.event_type);
-                    return (
-                      <div key={e.id} className="p-4 flex items-center gap-4">
-                        <span className="text-2xl">{t?.icon ?? "📝"}</span>
-                        <div className="flex-1">
-                          <p className="font-bold text-gray-900">{e.title}</p>
-                          <p className="text-sm text-gray-500">{format(parseISO(e.scheduled_at), "EEE MMM d, h:mm a")}</p>
-                        </div>
-                        {e.is_completed && <span className="text-green-600 text-xl">✅</span>}
-                      </div>
-                    );
-                  })}
+                  {((events ?? []) as CalendarEvent[]).map((e) => (
+                    <EventRow key={e.id} event={e} />
+                  ))}
                 </div>
               )}
             </section>
