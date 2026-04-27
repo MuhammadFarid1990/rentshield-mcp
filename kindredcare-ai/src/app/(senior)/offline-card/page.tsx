@@ -29,7 +29,8 @@ export default async function OfflineCardPage() {
       .single(),
   ]);
 
-  const center = (centerLink?.data as { care_centers?: { name?: string; phone?: string } } | null)?.care_centers;
+  const centerCenters = (centerLink as { care_centers?: { name?: string | null; phone?: string | null } | { name?: string | null; phone?: string | null }[] } | null)?.care_centers;
+  const center = Array.isArray(centerCenters) ? centerCenters[0] : centerCenters;
 
   return (
     <SeniorShell title="Emergency Card" showBack backHref="/home">
@@ -39,7 +40,14 @@ export default async function OfflineCardPage() {
           <p className="text-senior-base text-red-700 text-center mt-1">In case of emergency, call 911</p>
         </div>
 
-        <Card title="Name" value={(senior.user as { full_name: string })?.full_name ?? "—"} />
+        <Card
+          title="Name"
+          value={
+            (Array.isArray(senior.user)
+              ? (senior.user as { full_name?: string | null }[])[0]?.full_name
+              : (senior.user as { full_name?: string | null } | null)?.full_name) ?? "—"
+          }
+        />
         {senior.allergies && <Card title="Allergies" value={senior.allergies} highlight />}
         {senior.mobility_notes && <Card title="Mobility Notes" value={senior.mobility_notes} />}
         {senior.diet_notes && <Card title="Diet Notes" value={senior.diet_notes} />}

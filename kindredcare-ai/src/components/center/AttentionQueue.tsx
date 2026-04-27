@@ -3,10 +3,12 @@
 import type { DailyCareStatus, Senior, User } from "@/types/domain";
 import { cn } from "@/lib/utils/cn";
 import Link from "next/link";
+import { StaffQuickActions } from "./StaffQuickActions";
 
 interface AttentionRow {
   status: DailyCareStatus;
-  senior: Senior & { user: User };
+  senior: Senior & { user: User & { phone?: string | null } };
+  openAlertId?: string | null;
 }
 
 const statusConfig = {
@@ -36,9 +38,10 @@ function StatusDot({ level }: { level: "green" | "yellow" | "red" }) {
 
 interface AttentionQueueProps {
   rows: AttentionRow[];
+  showQuickActions?: boolean;
 }
 
-export function AttentionQueue({ rows }: AttentionQueueProps) {
+export function AttentionQueue({ rows, showQuickActions = true }: AttentionQueueProps) {
   const sorted = [...rows].sort((a, b) => {
     const order = { red: 0, yellow: 1, green: 2 };
     return order[a.status.overall_status] - order[b.status.overall_status];
@@ -49,16 +52,15 @@ export function AttentionQueue({ rows }: AttentionQueueProps) {
       {sorted.length === 0 && (
         <p className="text-center text-gray-500 py-10 text-lg">All seniors are doing well today.</p>
       )}
-      {sorted.map(({ status, senior }) => {
+      {sorted.map(({ status, senior, openAlertId }) => {
         const cfg = statusConfig[status.overall_status];
         const name = senior.preferred_name ?? senior.user?.full_name ?? "Senior";
 
         return (
-          <Link
-            key={status.id}
-            href={`/center/seniors/${senior.id}`}
+          <div
+            key={status.id || senior.id}
             className={cn(
-              "border-2 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition-shadow",
+              "border-2 rounded-2xl p-5 flex flex-col gap-3",
               cfg.bg,
             )}
           >
@@ -67,7 +69,15 @@ export function AttentionQueue({ rows }: AttentionQueueProps) {
                 <StatusDot level={status.overall_status} />
                 <span className="text-xl font-bold text-gray-900">{name}</span>
               </div>
-              <StatusBadge level={status.overall_status} />
+              <div className="flex items-center gap-3">
+                <StatusBadge level={status.overall_status} />
+                <Link
+                  href={`/center/seniors/${senior.id}`}
+                  className="text-sm font-semibold text-gray-700 hover:text-gray-900 underline"
+                >
+                  Open profile →
+                </Link>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 text-sm">
@@ -90,7 +100,16 @@ export function AttentionQueue({ rows }: AttentionQueueProps) {
                 {status.missed_reminders_count} missed reminder{status.missed_reminders_count > 1 ? "s" : ""}
               </p>
             )}
-          </Link>
+
+            {showQuickActions && (
+              <StaffQuickActions
+                seniorId={senior.id}
+                seniorName={name}
+                seniorPhone={senior.user?.phone ?? null}
+                openAlertId={openAlertId ?? null}
+              />
+            )}
+          </div>
         );
       })}
     </div>

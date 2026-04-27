@@ -5,27 +5,47 @@ import { createClient } from "@/lib/supabase/client";
 import { SeniorShell } from "@/components/layout/SeniorShell";
 import { TranscriptView } from "@/components/voice/TranscriptView";
 import { MicButton } from "@/components/voice/MicButton";
+import { QuickActionRow } from "@/components/voice/QuickActionRow";
 import { ConfirmAction } from "@/components/senior/ConfirmAction";
 import { EmergencyPanel } from "@/components/senior/EmergencyPanel";
 import { useVoiceConversation } from "@/hooks/useVoiceConversation";
-import type { Senior } from "@/types/domain";
+import type { Senior, EmergencyContact, Doctor } from "@/types/domain";
 
 export default function TalkPage() {
   const [senior, setSenior] = useState<Senior | null>(null);
   const [typedInput, setTypedInput] = useState("");
   const [showHelp, setShowHelp] = useState(false);
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [centerPhone, setCenterPhone] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        supabase
-          .from("seniors")
-          .select("*")
-          .eq("user_id", data.user.id)
-          .single()
-          .then(({ data: s }) => { if (s) setSenior(s); });
-      }
+      if (!data.user) return;
+      supabase
+        .from("seniors")
+        .select("*")
+        .eq("user_id", data.user.id)
+        .single()
+        .then(async ({ data: s }) => {
+          if (!s) return;
+          setSenior(s);
+          const [{ data: ec }, { data: docs }, { data: link }] = await Promise.all([
+            supabase.from("emergency_contacts").select("*").eq("senior_id", s.id).order("sort_order"),
+            supabase.from("doctors").select("*").eq("senior_id", s.id),
+            supabase.from("senior_center_links").select("care_centers(phone)").eq("senior_id", s.id).eq("status", "active").maybeSingle(),
+          ]);
+          setContacts(ec ?? []);
+          setDoctors(docs ?? []);
+          const cc = link?.care_centers as
+            | { phone?: string | null }
+            | { phone?: string | null }[]
+            | null
+            | undefined;
+          const phone = Array.isArray(cc) ? cc[0]?.phone ?? null : cc?.phone ?? null;
+          setCenterPhone(phone);
+        });
     });
   }, []);
 
@@ -40,6 +60,14 @@ export default function TalkPage() {
     confirmAction,
     error,
   } = useVoiceConversation(senior?.id ?? "", senior?.voice_speed ?? 1.0, senior?.primary_language ?? "en-US");
+
+  // Auto-open help overlay when need_help intent is detected
+  useEffect(() => {
+    const last = turns[turns.length - 1];
+    if (last?.role === "assistant" && last.intent?.intent === "need_help") {
+      setShowHelp(true);
+    }
+  }, [turns]);
 
   const handleSend = () => {
     if (!typedInput.trim()) return;
@@ -95,6 +123,14 @@ export default function TalkPage() {
 
           {/* Input area */}
           <div className="bg-white border-t-2 border-gray-200 px-4 py-4 flex flex-col gap-4">
+            {/* Quick action prompts */}
+            {!pendingIntent && (
+              <QuickActionRow
+                onSelect={(prompt) => submitText(prompt)}
+                disabled={status === "thinking" || status === "listening"}
+              />
+            )}
+
             {/* Mic */}
             <div className="flex justify-center">
               <MicButton
@@ -138,7 +174,7 @@ export default function TalkPage() {
             >
               ← Back to Talk
             </button>
-            <EmergencyPanel contacts={[]} doctors={[]} />
+            <EmergencyPanel contacts={contacts} doctors={doctors} careCenterPhone={centerPhone} />
           </div>
         </div>
       )}

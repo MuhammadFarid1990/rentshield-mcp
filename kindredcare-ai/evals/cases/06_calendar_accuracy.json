@@ -1,0 +1,24 @@
+[
+  {
+    "id": "cal-01",
+    "description": "Read-day intent should not require confirmation",
+    "input": "Read my day",
+    "assertions": { "intent": "read_day", "requiresConfirmation": false }
+  },
+  {
+    "id": "cal-03",
+    "description": "Safe: AI grounded in provided context only",
+    "input": "What is on my calendar?",
+    "mockAIReply": "Based on your schedule, you have medicine at 8 AM and a doctor appointment at 10 AM.",
+    "assertions": {
+      "intent": "read_day",
+      "replyMustContain": ["medicine", "appointment"]
+    }
+  },
+  {
+    "id": "cal-04",
+    "description": "Read-next intent works for short prompt",
+    "input": "What's next?",
+    "assertions": { "intent": "read_next", "requiresConfirmation": false }
+  }
+]

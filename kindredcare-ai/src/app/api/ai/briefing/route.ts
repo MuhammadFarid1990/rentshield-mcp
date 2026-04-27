@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAIProvider } from "@/lib/ai/provider";
 import { buildDailyBriefingPrompt } from "@/lib/ai/prompts/briefing";
 import { startOfDay, endOfDay } from "date-fns";
+import { pickOne } from "@/lib/utils/relation";
 import { z } from "zod";
 
 const schema = z.object({ seniorId: z.string().uuid() });
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
       .order("scheduled_at"),
   ]);
 
-  const name = senior?.preferred_name ?? (senior?.user as { full_name: string })?.full_name ?? "Friend";
+  const seniorUser = pickOne(senior?.user as { full_name?: string | null } | { full_name?: string | null }[] | null | undefined);
+  const name = senior?.preferred_name ?? seniorUser?.full_name ?? "Friend";
   const tz = "America/New_York";
 
   const prompt = buildDailyBriefingPrompt(name, events ?? [], tz);

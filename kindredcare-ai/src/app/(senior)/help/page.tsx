@@ -37,8 +37,10 @@ export default async function HelpPage() {
       .single(),
   ]);
 
-  const centerPhone =
-    (centerLink?.data as { care_centers?: { phone?: string } } | null)?.care_centers?.phone ?? null;
+  const centerCenters = (centerLink as { care_centers?: { phone?: string | null } | { phone?: string | null }[] } | null)?.care_centers;
+  const centerPhone = Array.isArray(centerCenters)
+    ? centerCenters[0]?.phone ?? null
+    : centerCenters?.phone ?? null;
 
   return (
     <SeniorShell title="Help" showBack backHref="/home" highContrast={senior.high_contrast}>

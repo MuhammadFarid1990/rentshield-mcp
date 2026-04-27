@@ -5,6 +5,8 @@ import { startOfDay, endOfDay } from "date-fns";
 import { formatTime, relativeDay } from "@/lib/utils/date";
 import type { CalendarEvent } from "@/types/domain";
 import { CALENDAR_EVENT_TYPES } from "@/lib/constants";
+import { ReadDayButton } from "@/components/senior/ReadDayButton";
+import { buildBriefingText, groupEvents, EVENT_GROUPS } from "@/lib/utils/briefing";
 
 function EventCard({ event }: { event: CalendarEvent }) {
   const typeInfo = CALENDAR_EVENT_TYPES.find((t) => t.value === event.event_type);
@@ -37,7 +39,7 @@ export default async function TodayPage() {
 
   const { data: senior } = await supabase
     .from("seniors")
-    .select("id, preferred_name, high_contrast, primary_language, user:users(full_name)")
+    .select("id, preferred_name, high_contrast, primary_language, voice_speed, timezone, user:users(full_name)")
     .eq("user_id", user.id)
     .single();
 
@@ -53,10 +55,17 @@ export default async function TodayPage() {
     .eq("is_cancelled", false)
     .order("scheduled_at");
 
-  const pending = (events ?? []).filter((e) => !e.is_completed);
-  const done = (events ?? []).filter((e) => e.is_completed);
-  const name = senior.preferred_name ?? (senior.user as { full_name: string })?.full_name ?? "Friend";
+  const allEvents = (events ?? []) as CalendarEvent[];
+  const pending = allEvents.filter((e) => !e.is_completed);
+  const done = allEvents.filter((e) => e.is_completed);
+  const seniorUser = Array.isArray(senior.user)
+    ? (senior.user as { full_name?: string | null }[])[0]
+    : (senior.user as { full_name?: string | null } | null);
+  const name = senior.preferred_name ?? seniorUser?.full_name ?? "Friend";
   const firstName = name.split(" ")[0];
+  const tz = (senior.timezone as string | null) ?? "America/New_York";
+  const briefingText = buildBriefingText(name, allEvents, tz);
+  const groupedPending = groupEvents(pending);
 
   return (
     <SeniorShell title="Today" showBack backHref="/home" highContrast={senior.high_contrast}>
@@ -66,7 +75,13 @@ export default async function TodayPage() {
           <p className="text-senior-base text-gray-600 mt-1">Here is your day, {firstName}.</p>
         </div>
 
-        {events?.length === 0 && (
+        <ReadDayButton
+          briefingText={briefingText}
+          voiceSpeed={(senior.voice_speed as number | null) ?? 0.95}
+          language={(senior.primary_language as string | null) ?? "en-US"}
+        />
+
+        {allEvents.length === 0 && (
           <div className="text-center bg-white rounded-2xl p-8 border-2 border-gray-200">
             <p className="text-5xl mb-3">🌞</p>
             <p className="text-senior-lg text-gray-600">You have no reminders today. Enjoy your day!</p>
@@ -76,8 +91,19 @@ export default async function TodayPage() {
         {pending.length > 0 && (
           <section>
             <h2 className="text-senior-lg font-bold text-gray-700 mb-3">Coming Up</h2>
-            <div className="flex flex-col gap-3">
-              {pending.map((e) => <EventCard key={e.id} event={e} />)}
+            <div className="flex flex-col gap-5">
+              {EVENT_GROUPS.map((g) => {
+                const items = groupedPending[g.label];
+                if (!items || items.length === 0) return null;
+                return (
+                  <div key={g.label} className="flex flex-col gap-3">
+                    <h3 className="text-senior-base font-semibold text-gray-600 uppercase tracking-wide">
+                      {g.label}
+                    </h3>
+                    {items.map((e) => <EventCard key={e.id} event={e} />)}
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}

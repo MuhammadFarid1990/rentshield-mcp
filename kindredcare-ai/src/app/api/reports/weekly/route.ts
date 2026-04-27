@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getAIProvider } from "@/lib/ai/provider";
 import { buildWeeklySummaryPrompt } from "@/lib/ai/prompts/briefing";
 import { startOfWeek, endOfWeek, format, subDays } from "date-fns";
+import { pickOne } from "@/lib/utils/relation";
 import { z } from "zod";
 
 const schema = z.object({ seniorId: z.string().uuid() });
@@ -34,8 +35,9 @@ export async function POST(request: Request) {
   const takenDoses = (medLogs ?? []).filter((l) => l.status === "taken").length;
   const compliance = totalDoses > 0 ? Math.round((takenDoses / totalDoses) * 100) : 100;
 
+  const seniorUser = pickOne(senior?.user as { full_name?: string | null } | { full_name?: string | null }[] | null | undefined);
   const stats = {
-    seniorName: senior?.preferred_name ?? (senior?.user as { full_name: string })?.full_name ?? "Senior",
+    seniorName: senior?.preferred_name ?? seniorUser?.full_name ?? "Senior",
     medCompliancePct: compliance,
     missedReminders: (missed ?? []).length,
     lonelinessLogs: (lonely ?? []).length,

@@ -5,7 +5,14 @@ import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 
 const args = process.argv.slice(2);
-const suite = args.find((a) => a.startsWith("--suite="))?.split("=")[1];
+function readArg(name: string): string | undefined {
+  const eq = args.find((a) => a.startsWith(`--${name}=`))?.split("=")[1];
+  if (eq) return eq;
+  const idx = args.indexOf(`--${name}`);
+  if (idx !== -1 && idx + 1 < args.length && !args[idx + 1].startsWith("--")) return args[idx + 1];
+  return undefined;
+}
+const suite = readArg("suite");
 const all = args.includes("--all") || !suite;
 
 const casesDir = join(__dirname, "../evals/cases");

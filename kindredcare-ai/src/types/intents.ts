@@ -13,6 +13,7 @@ export type IntentName =
   | "read_day"
   | "read_next"
   | "escalate_emergency"
+  | "need_help"
   | "wellness_checkin"
   | "play_family_message"
   | "unknown";

@@ -118,6 +118,7 @@ const INTENT_PATTERNS: IntentPattern[] = [
   {
     intent: "read_next",
     patterns: [
+      /^what'?s next\??$/i,
       /what (is|comes)? next/i,
       /what('s| is) (my )?next (reminder|appointment|event)/i,
       /did i miss anything/i,
@@ -141,6 +142,17 @@ const INTENT_PATTERNS: IntentPattern[] = [
       /do i have (any )?(messages?|message from)/i,
       /family (message|messages)/i,
       /play (my )?(messages?|voicemail)/i,
+    ],
+    requiresConfirmation: false,
+  },
+  {
+    intent: "need_help",
+    patterns: [
+      /^i need help$/i,
+      /^i need some help$/i,
+      /^show (me )?(emergency )?(contacts|help)$/i,
+      /^help me please$/i,
+      /^who can i call$/i,
     ],
     requiresConfirmation: false,
   },
