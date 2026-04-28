@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SeniorShell } from "@/components/layout/SeniorShell";
 import { EmergencyPanel } from "@/components/senior/EmergencyPanel";
-import { DISCLAIMER } from "@/lib/constants";
 
 export default async function HelpPage() {
   const supabase = await createClient();
@@ -48,6 +47,7 @@ export default async function HelpPage() {
         contacts={contacts ?? []}
         doctors={doctors ?? []}
         careCenterPhone={centerPhone}
+        showBackToHome
       />
     </SeniorShell>
   );

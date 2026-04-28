@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
+import { SeniorBottomNav } from "./SeniorBottomNav";
+import { AccessibilityProvider } from "@/components/senior/AccessibilityToggle";
 
 interface SeniorShellProps {
   children: ReactNode;
@@ -24,6 +26,9 @@ export function SeniorShell({
         highContrast && "high-contrast",
       )}
     >
+      {/* Apply user-saved accessibility preferences (text size, contrast) */}
+      <AccessibilityProvider initialContrast={highContrast} />
+
       {/* Header */}
       <header className="bg-blue-700 text-white px-4 py-4 flex items-center gap-4 shadow-md sticky top-0 z-10">
         {showBack && (
@@ -50,24 +55,7 @@ export function SeniorShell({
         {children}
       </main>
 
-      {/* Bottom nav */}
-      <nav className="bg-white border-t-2 border-gray-200 px-2 py-2 flex justify-around sticky bottom-0 z-10">
-        {[
-          { href: "/home", label: "Home", emoji: "🏠" },
-          { href: "/talk", label: "Talk", emoji: "🎙️" },
-          { href: "/today", label: "Today", emoji: "📅" },
-          { href: "/help", label: "Help", emoji: "🆘" },
-        ].map(({ href, label, emoji }) => (
-          <Link
-            key={href}
-            href={href}
-            className="flex flex-col items-center gap-0.5 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors min-h-[56px] justify-center text-gray-700"
-          >
-            <span className="text-2xl" aria-hidden="true">{emoji}</span>
-            <span className="text-xs font-semibold">{label}</span>
-          </Link>
-        ))}
-      </nav>
+      <SeniorBottomNav />
     </div>
   );
 }

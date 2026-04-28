@@ -32,6 +32,9 @@ export interface UseVoiceConversationReturn {
   confirmAction: (confirmed: boolean) => void;
   clearHistory: () => void;
   error: string | null;
+  speak: (text: string) => void;
+  stopSpeaking: () => void;
+  isSpeaking: boolean;
 }
 
 export function useVoiceConversation(
@@ -47,7 +50,7 @@ export function useVoiceConversation(
 
   const { transcript, interimTranscript, isListening, startListening: startSTT, stopListening, resetTranscript } =
     useSpeechRecognition(language);
-  const { speak, stop: stopSpeaking } = useSpeechSynthesis(voiceSpeed);
+  const { speak, stop: stopSpeaking, isSpeaking } = useSpeechSynthesis(voiceSpeed);
 
   const addTurn = (role: "user" | "assistant", text: string, intent?: IntentResult) => {
     const turn: ConversationTurn = {
@@ -185,5 +188,8 @@ export function useVoiceConversation(
     confirmAction,
     clearHistory,
     error,
+    speak,
+    stopSpeaking,
+    isSpeaking,
   };
 }

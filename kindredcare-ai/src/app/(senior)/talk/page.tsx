@@ -9,6 +9,7 @@ import { QuickActionRow } from "@/components/voice/QuickActionRow";
 import { ConfirmAction } from "@/components/senior/ConfirmAction";
 import { EmergencyPanel } from "@/components/senior/EmergencyPanel";
 import { useVoiceConversation } from "@/hooks/useVoiceConversation";
+import { cn } from "@/lib/utils/cn";
 import type { Senior, EmergencyContact, Doctor } from "@/types/domain";
 
 export default function TalkPage() {
@@ -18,6 +19,7 @@ export default function TalkPage() {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [centerPhone, setCenterPhone] = useState<string | null>(null);
+  const [tapMode, setTapMode] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -59,6 +61,9 @@ export default function TalkPage() {
     submitText,
     confirmAction,
     error,
+    speak,
+    stopSpeaking,
+    isSpeaking,
   } = useVoiceConversation(senior?.id ?? "", senior?.voice_speed ?? 1.0, senior?.primary_language ?? "en-US");
 
   // Auto-open help overlay when need_help intent is detected
@@ -75,11 +80,35 @@ export default function TalkPage() {
     setTypedInput("");
   };
 
+  const callEmergency = () => {
+    window.location.href = "tel:911";
+  };
+
+  const dismissEmergency = () => {
+    // The emergency text shows because pendingIntent.isEmergency is true.
+    // Re-submitting an "ok" message is awkward; instead we just reload state by
+    // submitting a soft acknowledgement that the user is fine, which clears the
+    // emergency flag on the next turn.
+    submitText("I'm okay, thank you. Please go back.");
+  };
+
+  const lastAssistant = [...turns].reverse().find((t) => t.role === "assistant");
+  const handleReadLast = () => {
+    if (!lastAssistant) return;
+    if (isSpeaking) stopSpeaking();
+    else speak(lastAssistant.text);
+  };
+
   if (!senior) {
     return (
       <SeniorShell title="Talk" showBack backHref="/home">
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-senior-lg text-gray-500">Loading…</p>
+        <div className="flex-1 flex items-center justify-center px-6 text-center">
+          <div>
+            <p className="text-5xl mb-3" aria-hidden="true">⏳</p>
+            <p className="text-senior-lg text-gray-700 font-semibold">
+              Just a moment, getting things ready…
+            </p>
+          </div>
         </div>
       </SeniorShell>
     );
@@ -95,17 +124,39 @@ export default function TalkPage() {
               {pendingIntent.replyText}
             </p>
           </div>
-          <button onClick={() => setShowHelp(true)} className="bg-red-600 text-white rounded-2xl py-5 text-senior-xl font-bold">
+          <button
+            onClick={callEmergency}
+            className="bg-red-600 hover:bg-red-700 text-white rounded-2xl py-6 text-senior-2xl font-bold shadow-lg active:scale-95 transition-all focus:outline-none focus:ring-4 focus:ring-red-300"
+            aria-label="Call 9 1 1 emergency services now"
+          >
+            📞 Call 911 Now
+          </button>
+          <button
+            onClick={() => setShowHelp(true)}
+            className="bg-orange-600 hover:bg-orange-700 text-white rounded-2xl py-5 text-senior-xl font-bold focus:outline-none focus:ring-4 focus:ring-orange-300"
+          >
             Show Emergency Contacts
+          </button>
+          <button
+            onClick={dismissEmergency}
+            className="bg-white border-2 border-gray-400 text-gray-800 rounded-2xl py-4 text-senior-lg font-bold hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-300"
+            aria-label="I'm okay — go back to talk"
+          >
+            ✅ I&apos;m okay, go back
           </button>
         </div>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Transcript */}
-          <TranscriptView turns={turns} interimTranscript={currentTranscript} />
+          <TranscriptView
+            turns={turns}
+            interimTranscript={currentTranscript}
+            onReadLast={lastAssistant ? handleReadLast : undefined}
+            isReadingLast={isSpeaking}
+          />
 
           {error && (
-            <div className="mx-4 my-2 bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-base">
+            <div className="mx-4 my-2 bg-red-50 border-2 border-red-300 rounded-xl p-3 text-red-700 text-senior-base font-semibold">
               {error}
             </div>
           )}
@@ -123,42 +174,62 @@ export default function TalkPage() {
 
           {/* Input area */}
           <div className="bg-white border-t-2 border-gray-200 px-4 py-4 flex flex-col gap-4">
-            {/* Quick action prompts */}
-            {!pendingIntent && (
+            {/* Quick action prompts — show whenever there's nothing in flight */}
+            {!pendingIntent?.requiresConfirmation && (
               <QuickActionRow
                 onSelect={(prompt) => submitText(prompt)}
                 disabled={status === "thinking" || status === "listening"}
               />
             )}
 
-            {/* Mic */}
-            <div className="flex justify-center">
+            {/* Mic + mode toggle */}
+            <div className="flex flex-col items-center gap-2">
               <MicButton
                 status={status}
                 onPress={startListening}
                 onRelease={stopAndSubmit}
+                tapMode={tapMode}
               />
+              <button
+                type="button"
+                onClick={() => setTapMode((v) => !v)}
+                aria-pressed={tapMode}
+                className={cn(
+                  "text-senior-sm font-semibold px-4 py-2 rounded-xl border-2",
+                  "focus:outline-none focus:ring-4 focus:ring-blue-300",
+                  tapMode
+                    ? "bg-blue-50 border-blue-300 text-blue-800"
+                    : "bg-gray-50 border-gray-300 text-gray-700",
+                )}
+              >
+                {tapMode ? "✓ Tap to talk" : "Switch to tap-to-talk"}
+              </button>
             </div>
 
             {/* Typing */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={typedInput}
-                onChange={(e) => setTypedInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Or type here…"
-                className="flex-1 border-2 border-gray-300 rounded-2xl px-4 py-3 text-senior-base focus:border-blue-500 focus:outline-none"
-                aria-label="Type your message"
-              />
-              <button
-                onClick={handleSend}
-                disabled={!typedInput.trim() || status === "thinking"}
-                className="bg-blue-700 text-white px-5 py-3 rounded-2xl text-senior-base font-bold disabled:opacity-50 hover:bg-blue-800 transition-colors"
-                aria-label="Send message"
-              >
-                Send
-              </button>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="talk-input" className="text-senior-sm font-semibold text-gray-700">
+                Or type your message
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="talk-input"
+                  type="text"
+                  value={typedInput}
+                  onChange={(e) => setTypedInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  placeholder="Type here…"
+                  className="flex-1 border-2 border-gray-300 rounded-2xl px-4 py-3 text-senior-base focus:border-blue-500 focus:outline-none"
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={!typedInput.trim() || status === "thinking"}
+                  className="bg-blue-700 text-white px-5 py-3 rounded-2xl text-senior-base font-bold disabled:opacity-50 hover:bg-blue-800 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300"
+                  aria-label="Send message"
+                >
+                  Send
+                </button>
+              </div>
             </div>
           </div>
         </div>

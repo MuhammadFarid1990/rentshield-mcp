@@ -41,10 +41,16 @@
   font-size: 20px;
 }
 
-.senior-shell.high-contrast {
+.senior-shell.high-contrast,
+html[data-senior-contrast="high"] .senior-shell {
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
   filter: contrast(1.4);
+}
+
+/* Big text mode (in-app override) */
+html[data-senior-text="large"] .senior-shell {
+  font-size: 24px;
 }
 
 /* Minimum touch targets */

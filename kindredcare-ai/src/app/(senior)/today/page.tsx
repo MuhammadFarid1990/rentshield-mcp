@@ -2,35 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SeniorShell } from "@/components/layout/SeniorShell";
 import { startOfDay, endOfDay } from "date-fns";
-import { formatTime, relativeDay } from "@/lib/utils/date";
+import { relativeDay } from "@/lib/utils/date";
 import type { CalendarEvent } from "@/types/domain";
-import { CALENDAR_EVENT_TYPES } from "@/lib/constants";
 import { ReadDayButton } from "@/components/senior/ReadDayButton";
+import { EventCard } from "@/components/senior/EventCard";
 import { buildBriefingText, groupEvents, EVENT_GROUPS } from "@/lib/utils/briefing";
-
-function EventCard({ event }: { event: CalendarEvent }) {
-  const typeInfo = CALENDAR_EVENT_TYPES.find((t) => t.value === event.event_type);
-  return (
-    <div
-      className={`flex items-center gap-4 p-5 rounded-2xl border-2 ${
-        event.is_completed ? "border-green-300 bg-green-50" : "border-gray-200 bg-white"
-      } shadow-sm`}
-    >
-      <span className="text-3xl flex-shrink-0" aria-hidden="true">{typeInfo?.icon ?? "📝"}</span>
-      <div className="flex-1 min-w-0">
-        <p className={`text-senior-base font-bold leading-tight ${event.is_completed ? "line-through text-gray-400" : "text-gray-900"}`}>
-          {event.title}
-        </p>
-        <p className="text-senior-sm text-gray-500">
-          {formatTime(event.scheduled_at)}
-        </p>
-      </div>
-      {event.is_completed && (
-        <span className="text-2xl flex-shrink-0" aria-label="Completed">✅</span>
-      )}
-    </div>
-  );
-}
 
 export default async function TodayPage() {
   const supabase = await createClient();
@@ -100,7 +76,7 @@ export default async function TodayPage() {
                     <h3 className="text-senior-base font-semibold text-gray-600 uppercase tracking-wide">
                       {g.label}
                     </h3>
-                    {items.map((e) => <EventCard key={e.id} event={e} />)}
+                    {items.map((e) => <EventCard key={e.id} event={e} timezone={tz} />)}
                   </div>
                 );
               })}
@@ -112,7 +88,7 @@ export default async function TodayPage() {
           <section>
             <h2 className="text-senior-lg font-bold text-gray-500 mb-3">Completed</h2>
             <div className="flex flex-col gap-3">
-              {done.map((e) => <EventCard key={e.id} event={e} />)}
+              {done.map((e) => <EventCard key={e.id} event={e} timezone={tz} />)}
             </div>
           </section>
         )}

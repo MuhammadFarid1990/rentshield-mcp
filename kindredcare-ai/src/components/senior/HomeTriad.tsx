@@ -30,13 +30,13 @@ function TriadButton({ href, label, emoji, color, description }: TriadButtonProp
   );
 }
 
-export function HomeTriad({ seniorName }: { seniorName: string }) {
+export function HomeTriad({ greeting, seniorName }: { greeting: string; seniorName: string }) {
   const firstName = seniorName.split(" ")[0];
 
   return (
-    <div className="flex flex-col gap-1 px-4 py-2">
+    <div className="flex flex-col gap-1">
       <h1 className="text-senior-2xl font-bold text-gray-800 text-center mb-4">
-        Hello, {firstName}
+        {greeting}, {firstName}
       </h1>
       <div className="grid grid-cols-1 gap-5">
         <TriadButton

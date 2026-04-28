@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { EmergencyContact, Doctor } from "@/types/domain";
 import { BigButton } from "./BigButton";
 
@@ -7,9 +8,11 @@ interface EmergencyPanelProps {
   contacts: EmergencyContact[];
   doctors: Doctor[];
   careCenterPhone?: string | null;
+  /** When true, shows a "Back to Home" big button at the bottom (used on /help). */
+  showBackToHome?: boolean;
 }
 
-export function EmergencyPanel({ contacts, doctors, careCenterPhone }: EmergencyPanelProps) {
+export function EmergencyPanel({ contacts, doctors, careCenterPhone, showBackToHome = false }: EmergencyPanelProps) {
   const call = (phone: string) => {
     window.location.href = `tel:${phone.replace(/\D/g, "")}`;
   };
@@ -67,9 +70,18 @@ export function EmergencyPanel({ contacts, doctors, careCenterPhone }: Emergency
         </BigButton>
       )}
 
-      <p className="text-sm text-gray-500 text-center px-2">
+      <p className="text-senior-sm text-gray-600 text-center px-2 leading-relaxed">
         KindredCare AI is not a doctor and is not for medical diagnosis or treatment.
       </p>
+
+      {showBackToHome && (
+        <Link
+          href="/home"
+          className="block w-full text-center bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-2xl py-5 text-senior-lg shadow-md focus:outline-none focus:ring-4 focus:ring-blue-300"
+        >
+          ← Back to Home
+        </Link>
+      )}
     </div>
   );
 }
