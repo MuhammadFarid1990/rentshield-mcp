@@ -29,8 +29,8 @@ export function timeAgo(dateStr: string) {
   return formatDistanceToNow(parseISO(dateStr), { addSuffix: true });
 }
 
-export function getTimeOfDayGreeting(now: Date = new Date()): string {
-  const hour = now.getHours();
+export function getTimeOfDayGreeting(now: Date = new Date(), tz = "America/New_York"): string {
+  const hour = parseInt(formatInTimeZone(now, tz, "H"), 10);
   if (hour < 5) return "Hello";
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";

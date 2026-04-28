@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CALENDAR_EVENT_TYPES } from "@/lib/constants";
 import { formatTime } from "@/lib/utils/date";
@@ -14,23 +14,20 @@ interface EventCardProps {
 
 export function EventCard({ event, timezone = "America/New_York" }: EventCardProps) {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(event.is_completed);
+  const [isPending, startTransition] = useTransition();
+  const done = event.is_completed;
   const typeInfo = CALENDAR_EVENT_TYPES.find((t) => t.value === event.event_type);
 
-  async function markDone() {
-    if (done || busy) return;
-    setBusy(true);
-    const res = await fetch(`/api/reminders/${event.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ is_completed: true }),
+  function markDone() {
+    if (done || isPending) return;
+    startTransition(async () => {
+      const res = await fetch(`/api/reminders/${event.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_completed: true }),
+      });
+      if (res.ok) router.refresh();
     });
-    setBusy(false);
-    if (res.ok) {
-      setDone(true);
-      router.refresh();
-    }
   }
 
   return (
@@ -60,7 +57,7 @@ export function EventCard({ event, timezone = "America/New_York" }: EventCardPro
         <button
           type="button"
           onClick={markDone}
-          disabled={busy}
+          disabled={isPending}
           aria-label={`Mark ${event.title} as done`}
           className={cn(
             "flex-shrink-0 px-4 py-3 rounded-2xl font-bold text-senior-sm",
@@ -69,7 +66,7 @@ export function EventCard({ event, timezone = "America/New_York" }: EventCardPro
             "disabled:opacity-60 active:scale-95 transition-all",
           )}
         >
-          {busy ? "…" : "Done"}
+          {isPending ? "…" : "Done"}
         </button>
       )}
     </div>

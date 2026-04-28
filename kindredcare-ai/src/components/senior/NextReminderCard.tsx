@@ -30,7 +30,7 @@ export function NextReminderCard({ event, timezone }: NextReminderCardProps) {
   return (
     <Link
       href="/today"
-      className="block rounded-3xl bg-amber-50 border-2 border-amber-300 p-5 shadow-sm hover:bg-amber-100 transition-colors"
+      className="block rounded-3xl bg-amber-50 border-2 border-amber-400 p-5 shadow-sm hover:bg-amber-100 transition-colors"
       aria-label={`Next reminder: ${event.title} at ${formatTime(event.scheduled_at, timezone)}, ${describeUntil(event.scheduled_at)}`}
     >
       <p className="text-senior-sm font-semibold text-amber-800 uppercase tracking-wide mb-2">
@@ -41,7 +41,7 @@ export function NextReminderCard({ event, timezone }: NextReminderCardProps) {
           {typeInfo?.icon ?? "📝"}
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-senior-lg font-bold text-gray-900 leading-tight">
+          <p className="text-senior-lg font-bold text-gray-900 leading-tight line-clamp-2">
             {event.title}
           </p>
           <p className="text-senior-base text-gray-700">

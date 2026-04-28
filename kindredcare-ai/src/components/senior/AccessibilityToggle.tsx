@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { cn } from "@/lib/utils/cn";
 
 const STORAGE_KEY_TEXT = "kc.senior.text";
@@ -27,16 +27,16 @@ export function AccessibilityProvider({ initialContrast = false }: { initialCont
 export function AccessibilityToggle({ initialContrast = false }: { initialContrast?: boolean }) {
   const [textLarge, setTextLarge] = useState(false);
   const [contrastHigh, setContrastHigh] = useState(initialContrast);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
+  // useLayoutEffect runs only on the client; this component is loaded with ssr:false
+  // so there is no hydration mismatch.
+  useLayoutEffect(() => {
     const t = localStorage.getItem(STORAGE_KEY_TEXT) === "large";
     const c = localStorage.getItem(STORAGE_KEY_CONTRAST);
     const ch = c === null ? initialContrast : c === "high";
     setTextLarge(t);
     setContrastHigh(ch);
     applyAccessibility(t, ch);
-    setMounted(true);
   }, [initialContrast]);
 
   function toggleText() {
@@ -51,11 +51,6 @@ export function AccessibilityToggle({ initialContrast = false }: { initialContra
     setContrastHigh(next);
     localStorage.setItem(STORAGE_KEY_CONTRAST, next ? "high" : "normal");
     applyAccessibility(textLarge, next);
-  }
-
-  // Avoid hydration mismatch — render placeholder until we know stored values
-  if (!mounted) {
-    return <div className="h-[64px]" aria-hidden="true" />;
   }
 
   return (
@@ -77,7 +72,7 @@ export function AccessibilityToggle({ initialContrast = false }: { initialContra
         )}
       >
         <span className="text-2xl mr-2" aria-hidden="true">🅰️</span>
-        {textLarge ? "Big text on" : "Big text"}
+        Big text
       </button>
       <button
         type="button"
@@ -92,7 +87,7 @@ export function AccessibilityToggle({ initialContrast = false }: { initialContra
         )}
       >
         <span className="text-2xl mr-2" aria-hidden="true">🌓</span>
-        {contrastHigh ? "High contrast on" : "High contrast"}
+        High contrast
       </button>
     </div>
   );

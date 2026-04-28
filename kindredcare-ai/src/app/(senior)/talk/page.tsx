@@ -60,6 +60,7 @@ export default function TalkPage() {
     stopAndSubmit,
     submitText,
     confirmAction,
+    clearEmergency,
     error,
     speak,
     stopSpeaking,
@@ -85,18 +86,12 @@ export default function TalkPage() {
   };
 
   const dismissEmergency = () => {
-    // The emergency text shows because pendingIntent.isEmergency is true.
-    // Re-submitting an "ok" message is awkward; instead we just reload state by
-    // submitting a soft acknowledgement that the user is fine, which clears the
-    // emergency flag on the next turn.
-    submitText("I'm okay, thank you. Please go back.");
+    clearEmergency();
   };
 
-  const lastAssistant = [...turns].reverse().find((t) => t.role === "assistant");
-  const handleReadLast = () => {
-    if (!lastAssistant) return;
+  const handleRead = (text: string) => {
     if (isSpeaking) stopSpeaking();
-    else speak(lastAssistant.text);
+    else speak(text);
   };
 
   if (!senior) {
@@ -118,7 +113,12 @@ export default function TalkPage() {
     <SeniorShell title="Talk to KindredCare" showBack backHref="/home" highContrast={senior.high_contrast}>
       {/* Emergency escalation overlay */}
       {pendingIntent?.isEmergency ? (
-        <div className="flex-1 flex flex-col p-4 gap-4">
+        <div
+          className="flex-1 flex flex-col p-4 gap-4"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
           <div className="bg-red-50 border-2 border-red-500 rounded-2xl p-4">
             <p className="text-senior-lg font-bold text-red-800 text-center">
               {pendingIntent.replyText}
@@ -151,8 +151,8 @@ export default function TalkPage() {
           <TranscriptView
             turns={turns}
             interimTranscript={currentTranscript}
-            onReadLast={lastAssistant ? handleReadLast : undefined}
-            isReadingLast={isSpeaking}
+            onRead={handleRead}
+            isSpeaking={isSpeaking}
           />
 
           {error && (
@@ -202,7 +202,7 @@ export default function TalkPage() {
                     : "bg-gray-50 border-gray-300 text-gray-700",
                 )}
               >
-                {tapMode ? "✓ Tap to talk" : "Switch to tap-to-talk"}
+                {tapMode ? "Using tap mode" : "Use tap mode"}
               </button>
             </div>
 

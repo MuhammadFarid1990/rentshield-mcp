@@ -16,7 +16,7 @@ export function SeniorBottomNav() {
 
   return (
     <nav
-      className="bg-white border-t-2 border-gray-200 px-2 py-2 flex justify-around sticky bottom-0 z-10"
+      className="bg-white border-t-2 border-gray-200 px-2 pt-2 flex justify-around sticky bottom-0 z-10 pb-[env(safe-area-inset-bottom)]"
       aria-label="Main navigation"
     >
       {NAV_ITEMS.map(({ href, label, emoji }) => {

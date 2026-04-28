@@ -28,7 +28,7 @@ export default async function SeniorHomePage() {
   const name = senior?.preferred_name ?? seniorUser?.full_name ?? "Friend";
   const highContrast = senior?.high_contrast ?? false;
   const tz = (senior?.timezone as string | null) ?? "America/New_York";
-  const greeting = getTimeOfDayGreeting();
+  const greeting = getTimeOfDayGreeting(new Date(), tz);
 
   // Fetch the next pending reminder today (or null).
   const now = new Date();

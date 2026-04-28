@@ -7,25 +7,23 @@ import { useEffect, useRef } from "react";
 interface TranscriptViewProps {
   turns: ConversationTurn[];
   interimTranscript?: string;
-  /** Optional handler that re-speaks the latest assistant reply. */
-  onReadLast?: () => void;
-  /** When true, the Read Again button is rendered in a "stop" state. */
-  isReadingLast?: boolean;
+  /** Called when the user taps Read again on any assistant turn. */
+  onRead?: (text: string) => void;
+  /** When true, Read again buttons show in "stop" state. */
+  isSpeaking?: boolean;
 }
 
 export function TranscriptView({
   turns,
   interimTranscript,
-  onReadLast,
-  isReadingLast,
+  onRead,
+  isSpeaking,
 }: TranscriptViewProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [turns, interimTranscript]);
-
-  const lastAssistantId = [...turns].reverse().find((t) => t.role === "assistant")?.id;
 
   return (
     <div
@@ -36,7 +34,6 @@ export function TranscriptView({
     >
       {turns.map((turn) => {
         const isUser = turn.role === "user";
-        const isLastAssistant = !isUser && turn.id === lastAssistantId;
         return (
           <div
             key={turn.id}
@@ -63,18 +60,18 @@ export function TranscriptView({
             >
               <p className="text-senior-base leading-relaxed">{turn.text}</p>
             </div>
-            {isLastAssistant && onReadLast && (
+            {!isUser && onRead && (
               <button
                 type="button"
-                onClick={onReadLast}
-                aria-label={isReadingLast ? "Stop reading" : "Read this reply again"}
+                onClick={() => onRead(turn.text)}
+                aria-label={isSpeaking ? "Stop reading" : "Read this reply again"}
                 className={cn(
                   "mt-1 text-senior-sm font-semibold px-3 py-2 rounded-xl",
                   "border-2 border-teal-300 text-teal-800 hover:bg-teal-50",
                   "focus:outline-none focus:ring-4 focus:ring-teal-200",
                 )}
               >
-                {isReadingLast ? "⏹️ Stop reading" : "🔊 Read again"}
+                {isSpeaking ? "⏹️ Stop reading" : "🔊 Read again"}
               </button>
             )}
           </div>

@@ -31,6 +31,7 @@ export interface UseVoiceConversationReturn {
   submitText: (text: string) => void;
   confirmAction: (confirmed: boolean) => void;
   clearHistory: () => void;
+  clearEmergency: () => void;
   error: string | null;
   speak: (text: string) => void;
   stopSpeaking: () => void;
@@ -177,6 +178,11 @@ export function useVoiceConversation(
     historyRef.current = [];
   }, []);
 
+  const clearEmergency = useCallback(() => {
+    setPendingIntent(null);
+    setStatus("idle");
+  }, []);
+
   return {
     status,
     turns,
@@ -187,6 +193,7 @@ export function useVoiceConversation(
     submitText,
     confirmAction,
     clearHistory,
+    clearEmergency,
     error,
     speak,
     stopSpeaking,
