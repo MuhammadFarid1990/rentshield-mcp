@@ -12,28 +12,48 @@ const config = {
   green: {
     bg: "bg-green-50 border-green-400",
     icon: "✅",
-    headline: "is doing well today.",
+    headline: "Doing well today",
     textColor: "text-green-800",
+    subColor: "text-green-700",
   },
   yellow: {
     bg: "bg-yellow-50 border-yellow-400",
     icon: "⚠️",
-    headline: "may need some follow-up today.",
+    headline: "Needs follow-up today",
     textColor: "text-yellow-800",
+    subColor: "text-yellow-700",
   },
   red: {
     bg: "bg-red-50 border-red-400",
     icon: "🚨",
-    headline: "needs urgent attention.",
+    headline: "Urgent attention needed",
     textColor: "text-red-800",
+    subColor: "text-red-700",
   },
 };
+
+function buildSummaryLine(s: DailyCareStatus): string {
+  const parts: string[] = [];
+  if (s.missed_reminders_count > 0) {
+    parts.push(`${s.missed_reminders_count} missed reminder${s.missed_reminders_count > 1 ? "s" : ""}`);
+  }
+  if (s.open_alerts_count > 0) {
+    parts.push(`${s.open_alerts_count} open alert${s.open_alerts_count > 1 ? "s" : ""}`);
+  }
+  if (s.checkin_completed) {
+    parts.push("check-in done");
+  } else {
+    parts.push("no check-in yet");
+  }
+  return parts.join(" · ");
+}
 
 export function StatusHero({ status, seniorName }: StatusHeroProps) {
   if (!status) {
     return (
       <div className="bg-gray-50 border-2 border-gray-300 rounded-3xl p-6 text-center">
         <p className="text-xl text-gray-600">No status available yet for today.</p>
+        <p className="text-sm text-gray-400 mt-1">It will appear once the care center has data.</p>
       </div>
     );
   }
@@ -46,9 +66,12 @@ export function StatusHero({ status, seniorName }: StatusHeroProps) {
     <div className={cn("border-2 rounded-3xl p-6 flex flex-col gap-3 text-center", c.bg)}>
       <span className="text-5xl" aria-hidden="true">{c.icon}</span>
       <p className={cn("text-2xl font-bold", c.textColor)}>
-        {firstName} {c.headline}
+        {firstName} — {c.headline}
       </p>
-      <div className="grid grid-cols-2 gap-2 mt-2 text-left">
+      <p className={cn("text-sm font-medium", c.subColor)}>
+        {buildSummaryLine(status)}
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 text-left">
         {[
           { label: "Medicine", key: "medicine_status" as const },
           { label: "Meals", key: "meal_status" as const },

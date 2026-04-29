@@ -231,6 +231,8 @@ export interface WeeklyProgressReport {
   missed_reminders_count: number;
   loneliness_logs_count: number;
   bp_logs_count: number;
+  sugar_logs_count: number;
+  wellness_checkins_count: number;
   ai_summary?: string | null;
   recommendations?: Record<string, unknown> | null;
   generated_at: string;

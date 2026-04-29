@@ -1,11 +1,15 @@
 import type { DailyCareStatus } from "@/types/domain";
 
+export type GuardianActionKey = "call" | "reminder" | "notify_center" | "review_health";
+
 export interface SuggestedAction {
   level: "info" | "warn" | "urgent";
   title: string;
   detail: string;
   actionLabel?: string;
   actionHref?: string;
+  /** Which of the 4 quick actions to highlight as primary. */
+  primaryAction: GuardianActionKey;
 }
 
 export function suggestActionForGuardian(
@@ -22,6 +26,7 @@ export function suggestActionForGuardian(
       detail: `We do not have a care status for ${firstName} yet. Check back later or open the alerts page if you are concerned.`,
       actionLabel: "View alerts",
       actionHref: "/guardian/alerts",
+      primaryAction: "call",
     };
   }
 
@@ -35,6 +40,7 @@ export function suggestActionForGuardian(
           : `${firstName}'s care status is red today. Please check in by call.`,
       actionLabel: "View alerts",
       actionHref: "/guardian/alerts",
+      primaryAction: "call",
     };
   }
 
@@ -45,6 +51,7 @@ export function suggestActionForGuardian(
       detail: `${firstName} has ${status.missed_reminders_count} missed reminder${status.missed_reminders_count > 1 ? "s" : ""} today. A friendly call could help.`,
       actionLabel: "Open medication",
       actionHref: `/guardian/medication?seniorId=${seniorId}`,
+      primaryAction: "call",
     };
   }
 
@@ -55,6 +62,7 @@ export function suggestActionForGuardian(
       detail: `${firstName}'s last check-in suggests they could use some company. A short call or family message would mean a lot.`,
       actionLabel: "Send a message",
       actionHref: "/guardian/messages",
+      primaryAction: "call",
     };
   }
 
@@ -65,6 +73,7 @@ export function suggestActionForGuardian(
       detail: `${firstName} has health readings outside the safe range. Please review their recent logs.`,
       actionLabel: "View health",
       actionHref: `/guardian/health?seniorId=${seniorId}`,
+      primaryAction: "review_health",
     };
   }
 
@@ -73,6 +82,7 @@ export function suggestActionForGuardian(
       level: "info",
       title: "No check-in yet today",
       detail: `${firstName} has not completed a wellness check-in today. They may simply be busy — no need to worry.`,
+      primaryAction: "call",
     };
   }
 
@@ -80,5 +90,6 @@ export function suggestActionForGuardian(
     level: "info",
     title: "All looking well",
     detail: `${firstName} is doing well today. Reminders are on track and no alerts are open.`,
+    primaryAction: "call",
   };
 }
