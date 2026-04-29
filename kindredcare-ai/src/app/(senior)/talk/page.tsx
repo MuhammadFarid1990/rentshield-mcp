@@ -202,7 +202,7 @@ export default function TalkPage() {
                     : "bg-gray-50 border-gray-300 text-gray-700",
                 )}
               >
-                {tapMode ? "Using tap mode" : "Use tap mode"}
+                {tapMode ? "Use hold mode (default)" : "Use tap mode instead"}
               </button>
             </div>
 
