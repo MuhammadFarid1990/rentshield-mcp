@@ -3,12 +3,15 @@
 import type { DailyCareStatus, Senior, User } from "@/types/domain";
 import { cn } from "@/lib/utils/cn";
 import Link from "next/link";
+import { MOOD_OPTIONS } from "@/lib/constants";
 import { StaffQuickActions } from "./StaffQuickActions";
 
 interface AttentionRow {
   status: DailyCareStatus;
   senior: Senior & { user: User & { phone?: string | null } };
   openAlertId?: string | null;
+  lastMood?: string | null;
+  completedToday?: number;
 }
 
 const statusConfig = {
@@ -41,6 +44,11 @@ interface AttentionQueueProps {
   showQuickActions?: boolean;
 }
 
+function moodEmoji(mood: string | null | undefined) {
+  if (!mood) return null;
+  return MOOD_OPTIONS.find((m) => m.value === mood)?.emoji ?? null;
+}
+
 export function AttentionQueue({ rows, showQuickActions = true }: AttentionQueueProps) {
   const sorted = [...rows].sort((a, b) => {
     const order = { red: 0, yellow: 1, green: 2 };
@@ -52,7 +60,7 @@ export function AttentionQueue({ rows, showQuickActions = true }: AttentionQueue
       {sorted.length === 0 && (
         <p className="text-center text-gray-500 py-10 text-lg">All seniors are doing well today.</p>
       )}
-      {sorted.map(({ status, senior, openAlertId }) => {
+      {sorted.map(({ status, senior, openAlertId, lastMood, completedToday }) => {
         const cfg = statusConfig[status.overall_status];
         const name = senior.preferred_name ?? senior.user?.full_name ?? "Senior";
 
@@ -95,11 +103,24 @@ export function AttentionQueue({ rows, showQuickActions = true }: AttentionQueue
               ))}
             </div>
 
-            {status.missed_reminders_count > 0 && (
-              <p className="text-sm text-amber-700 font-medium">
-                {status.missed_reminders_count} missed reminder{status.missed_reminders_count > 1 ? "s" : ""}
-              </p>
-            )}
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              {completedToday != null && (
+                <span className="text-green-700 font-medium">✓ {completedToday} done today</span>
+              )}
+              {status.missed_reminders_count > 0 && (
+                <span className="text-red-700 font-medium">
+                  ✗ {status.missed_reminders_count} missed
+                </span>
+              )}
+              {moodEmoji(lastMood) && (
+                <span className="text-gray-600">
+                  Last mood: <span className="text-lg">{moodEmoji(lastMood)}</span>
+                </span>
+              )}
+              {!lastMood && (
+                <span className="text-gray-400 text-xs">No check-in today</span>
+              )}
+            </div>
 
             {showQuickActions && (
               <StaffQuickActions
