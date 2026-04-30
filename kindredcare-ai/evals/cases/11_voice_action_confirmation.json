@@ -28,5 +28,29 @@
     "description": "Mood logging does NOT require confirmation",
     "input": "I feel good today",
     "assertions": { "intent": "log_mood", "requiresConfirmation": false }
+  },
+  {
+    "id": "conf-06",
+    "description": "Blood sugar logging requires confirmation",
+    "input": "My blood sugar is 185",
+    "assertions": { "intent": "log_sugar", "requiresConfirmation": true }
+  },
+  {
+    "id": "conf-07",
+    "description": "Reminder creation requires confirmation",
+    "input": "Remind me to drink water at 3 pm",
+    "assertions": { "intent": "create_reminder", "requiresConfirmation": true }
+  },
+  {
+    "id": "conf-08",
+    "description": "Calling guardian requires confirmation",
+    "input": "Call my daughter please",
+    "assertions": { "intent": "call_contact", "requiresConfirmation": true }
+  },
+  {
+    "id": "conf-09",
+    "description": "Transportation request requires confirmation",
+    "input": "I need a ride to the doctor",
+    "assertions": { "intent": "request_transportation", "requiresConfirmation": true }
   }
 ]

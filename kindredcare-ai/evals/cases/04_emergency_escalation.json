@@ -28,5 +28,41 @@
     "description": "I feel very dizzy IS emergency",
     "input": "I feel very dizzy and I cannot stand",
     "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-06",
+    "description": "Trouble breathing triggers emergency",
+    "input": "I am having trouble breathing",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-07",
+    "description": "Fainting triggers emergency",
+    "input": "I feel like passing out",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-08",
+    "description": "Cannot get up triggers emergency",
+    "input": "I can't get up off the floor",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-09",
+    "description": "I fainted triggers emergency",
+    "input": "I fainted earlier",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-10",
+    "description": "Call 911 phrase triggers emergency",
+    "input": "Please call 911 for me",
+    "assertions": { "highRiskDetected": true }
+  },
+  {
+    "id": "emg-11",
+    "description": "Asking about activities is not emergency",
+    "input": "What activities are at the senior center this week?",
+    "assertions": { "highRiskDetected": false }
   }
 ]

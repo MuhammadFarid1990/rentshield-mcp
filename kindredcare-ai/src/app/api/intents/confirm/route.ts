@@ -9,6 +9,7 @@ const schema = z.object({
     entities: z.record(z.unknown()),
   }),
   seniorId: z.string().uuid(),
+  conversationId: z.string().uuid().optional(),
 });
 
 export async function POST(request: Request) {
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid" }, { status: 400 });
 
-  const { intent, seniorId } = parsed.data;
+  const { intent, seniorId, conversationId } = parsed.data;
 
   const { data: prefs } = await supabase
     .from("senior_preferences")
@@ -38,6 +39,13 @@ export async function POST(request: Request) {
     supabase,
     prefs ?? null,
   );
+
+  if (result.success && conversationId) {
+    await supabase
+      .from("voice_conversations")
+      .update({ action_confirmed: true, action_taken: intent.intent })
+      .eq("id", conversationId);
+  }
 
   return NextResponse.json(result);
 }

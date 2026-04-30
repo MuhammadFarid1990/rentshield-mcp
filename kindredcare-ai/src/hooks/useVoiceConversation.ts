@@ -48,6 +48,7 @@ export function useVoiceConversation(
   const [pendingIntent, setPendingIntent] = useState<IntentResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const historyRef = useRef<{ role: "user" | "assistant"; content: string }[]>([]);
+  const lastConversationIdRef = useRef<string | null>(null);
 
   const { transcript, interimTranscript, isListening, startListening: startSTT, stopListening, resetTranscript } =
     useSpeechRecognition(language);
@@ -89,7 +90,8 @@ export function useVoiceConversation(
 
         if (!res.ok) throw new Error("AI request failed");
 
-        const { replyText, intent } = await res.json();
+        const { replyText, intent, conversationId } = await res.json();
+        lastConversationIdRef.current = conversationId ?? null;
 
         addTurn("assistant", replyText, intent);
 
@@ -157,7 +159,11 @@ export function useVoiceConversation(
         const res = await fetch("/api/intents/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ intent: pendingIntent, seniorId }),
+          body: JSON.stringify({
+            intent: pendingIntent,
+            seniorId,
+            conversationId: lastConversationIdRef.current,
+          }),
         });
 
         const { message } = await res.json();

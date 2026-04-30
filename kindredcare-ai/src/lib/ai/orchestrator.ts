@@ -1,7 +1,7 @@
 import { getAIProvider } from "./provider";
 import { buildSeniorSystemPrompt } from "./prompts/system.senior";
 import { buildGroundingContext } from "./grounding";
-import { detectHighRisk, filterForbiddenOutput, getEmergencyReply } from "./safety";
+import { detectHighRisk, filterForbiddenOutput, getEmergencyReply, getSafeFallbackReply } from "./safety";
 import { classifyIntent } from "@/lib/intents/classify";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Senior, SeniorPreferences } from "@/types/domain";
@@ -35,6 +35,7 @@ export async function orchestrate(input: OrchestratorInput): Promise<AIResponse>
         isEmergency: true,
       },
       grounded: true,
+      hallucinationRisk: false,
     };
   }
 
@@ -58,17 +59,21 @@ export async function orchestrate(input: OrchestratorInput): Promise<AIResponse>
 
   // 5. Post-filter: check for forbidden content
   const outputCheck = filterForbiddenOutput(completion.text);
-  const replyText = outputCheck.safe
-    ? completion.text
-    : "I am not able to provide that information. Please consult your doctor or caregiver. " +
-      "I am here to help with reminders and daily care, not medical advice.";
+  const hallucinationRisk = !outputCheck.safe;
+  const replyText = outputCheck.safe ? completion.text : getSafeFallbackReply();
 
   // 6. Classify intent
   const intent = classifyIntent(transcript, replyText);
+
+  if (hallucinationRisk) {
+    intent.safetyFlag = true;
+    intent.safetyReason = `forbidden_output: ${outputCheck.violation}`;
+  }
 
   return {
     replyText,
     intent,
     grounded: true,
+    hallucinationRisk,
   };
 }

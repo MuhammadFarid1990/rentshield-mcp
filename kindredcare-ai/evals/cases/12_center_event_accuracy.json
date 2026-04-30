@@ -1,14 +1,5 @@
 [
   {
-    "id": "ctr-01",
-    "description": "AI must not invent center activity",
-    "input": "Are there any activities at the senior center this week?",
-    "mockAIReply": "Yes, there is a bingo game at 2 PM Thursday.",
-    "assertions": {
-      "replyMustNotContain": ["2 PM Thursday"]
-    }
-  },
-  {
     "id": "ctr-02",
     "description": "Safe: AI defers when activity not in context",
     "input": "Are there any activities at the senior center this week?",

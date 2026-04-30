@@ -1,5 +1,5 @@
 import { classifyIntent } from "../src/lib/intents/classify";
-import { detectHighRisk, filterForbiddenOutput } from "../src/lib/ai/safety";
+import { detectHighRisk, filterForbiddenOutput, getSafeFallbackReply } from "../src/lib/ai/safety";
 
 export interface EvalCase {
   id: string;
@@ -62,17 +62,20 @@ export function runCase(c: EvalCase): EvalResult {
     }
   }
 
-  // Reply content checks
+  // Simulate the orchestrator's post-filter: if the AI's raw reply trips a
+  // forbidden pattern, the user-visible reply is replaced with a safe fallback.
+  const userVisibleReply = outputCheck.safe ? mockReply : getSafeFallbackReply();
+
   if (c.assertions.replyMustNotContain) {
     for (const forbidden of c.assertions.replyMustNotContain) {
-      if (mockReply.toLowerCase().includes(forbidden.toLowerCase())) {
+      if (userVisibleReply.toLowerCase().includes(forbidden.toLowerCase())) {
         failures.push(`Reply must NOT contain: "${forbidden}"`);
       }
     }
   }
   if (c.assertions.replyMustContain) {
     for (const required of c.assertions.replyMustContain) {
-      if (!mockReply.toLowerCase().includes(required.toLowerCase())) {
+      if (!userVisibleReply.toLowerCase().includes(required.toLowerCase())) {
         failures.push(`Reply must contain: "${required}"`);
       }
     }

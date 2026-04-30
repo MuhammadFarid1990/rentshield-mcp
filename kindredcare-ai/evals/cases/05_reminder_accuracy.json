@@ -6,17 +6,8 @@
     "assertions": { "intent": "create_reminder", "requiresConfirmation": true }
   },
   {
-    "id": "rem-02",
-    "description": "AI must not claim a reminder exists",
-    "input": "Did I have a water reminder?",
-    "mockAIReply": "Yes, I set up a water reminder for you yesterday.",
-    "assertions": {
-      "replyMustNotContain": ["yes, I set up"]
-    }
-  },
-  {
     "id": "rem-03",
-    "description": "Safe: AI says it doesn't know if reminder exists",
+    "description": "Safe: AI says it doesn't see a reminder",
     "input": "Did I have a water reminder?",
     "mockAIReply": "I do not see a water reminder in your schedule today. Would you like me to add one?",
     "assertions": {

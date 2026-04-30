@@ -60,22 +60,32 @@ export async function POST(request: Request) {
     timezone,
   });
 
-  // Persist conversation
-  await supabase.from("voice_conversations").insert({
-    senior_id: seniorId,
-    transcript,
-    ai_reply: result.replyText,
-    intent: result.intent.intent,
-    action_taken: null,
-    action_confirmed: false,
-    safety_flag: result.intent.safetyFlag,
-    safety_reason: result.intent.safetyReason ?? null,
-  });
+  // Persist conversation; capture id so we can mark action_confirmed on follow-up.
+  const { data: convo } = await supabase
+    .from("voice_conversations")
+    .insert({
+      senior_id: seniorId,
+      transcript,
+      ai_reply: result.replyText,
+      intent: result.intent.intent,
+      action_taken: null,
+      action_confirmed: false,
+      safety_flag: result.intent.safetyFlag,
+      safety_reason: result.intent.safetyReason ?? null,
+    })
+    .select("id")
+    .single();
 
-  await logAudit(supabase, user.id, seniorId, "ai_chat", { intent: result.intent.intent });
+  await logAudit(supabase, user.id, seniorId, "ai_chat", {
+    intent: result.intent.intent,
+    safetyFlag: result.intent.safetyFlag,
+    hallucinationRisk: result.hallucinationRisk,
+  });
 
   return NextResponse.json({
     replyText: result.replyText,
     intent: result.intent,
+    hallucinationRisk: result.hallucinationRisk,
+    conversationId: convo?.id ?? null,
   });
 }

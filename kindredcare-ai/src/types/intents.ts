@@ -41,4 +41,5 @@ export interface AIResponse {
   replyText: string;
   intent: IntentResult;
   grounded: boolean;
+  hallucinationRisk: boolean;
 }
