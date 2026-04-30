@@ -45,8 +45,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="text-center text-blue-200 text-sm px-6 py-4">
+      <footer className="text-center text-blue-200 text-sm px-6 py-4 flex flex-col gap-1">
         <p>{DISCLAIMER}</p>
+        <p>Your health data stays private. Role-based access. We never share with third parties.</p>
       </footer>
     </main>
   );

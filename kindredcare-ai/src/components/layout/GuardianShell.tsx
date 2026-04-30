@@ -8,11 +8,13 @@ interface GuardianShellProps {
 
 const NAV_ITEMS = [
   { href: "/guardian/dashboard", label: "Dashboard", emoji: "🏠" },
-  { href: "/guardian/calendar", label: "Calendar", emoji: "📅" },
-  { href: "/guardian/medication", label: "Meds", emoji: "💊" },
-  { href: "/guardian/health", label: "Health", emoji: "❤️" },
-  { href: "/guardian/contacts", label: "Contacts", emoji: "📋" },
-  { href: "/guardian/alerts", label: "Alerts", emoji: "🔔" },
+  { href: "/guardian/calendar",  label: "Calendar",  emoji: "📅" },
+  { href: "/guardian/medication", label: "Meds",     emoji: "💊" },
+  { href: "/guardian/health",    label: "Health",    emoji: "❤️" },
+  { href: "/guardian/contacts",  label: "Contacts",  emoji: "📋" },
+  { href: "/guardian/messages",  label: "Messages",  emoji: "💬" },
+  { href: "/guardian/alerts",    label: "Alerts",    emoji: "🔔" },
+  { href: "/guardian/settings",  label: "Settings",  emoji: "⚙️" },
 ];
 
 export function GuardianShell({ children, title }: GuardianShellProps) {

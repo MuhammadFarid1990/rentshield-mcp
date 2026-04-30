@@ -14,11 +14,19 @@ export default async function AdminAuditLogsPage() {
     .order("created_at", { ascending: false })
     .limit(200);
 
+  const rows = logs ?? [];
+
   return (
     <AdminShell title="Audit Logs">
       <div className="flex flex-col gap-6">
         <h2 className="text-2xl font-bold text-gray-900">Audit Logs (last 200)</h2>
 
+        {rows.length === 0 ? (
+          <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 text-center">
+            <p className="text-3xl mb-2">📋</p>
+            <p className="text-gray-600">No audit events recorded yet.</p>
+          </div>
+        ) : (
         <div className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
@@ -31,7 +39,7 @@ export default async function AdminAuditLogsPage() {
               </tr>
             </thead>
             <tbody>
-              {(logs ?? []).map((l) => (
+              {rows.map((l) => (
                 <tr key={l.id} className="border-t border-gray-100 align-top">
                   <td className="px-4 py-2 text-gray-500 whitespace-nowrap">{format(parseISO(l.created_at), "MMM d, HH:mm:ss")}</td>
                   <td className="px-4 py-2">{(() => {
@@ -48,6 +56,7 @@ export default async function AdminAuditLogsPage() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </AdminShell>
   );

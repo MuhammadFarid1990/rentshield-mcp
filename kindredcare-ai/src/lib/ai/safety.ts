@@ -64,6 +64,3 @@ export function getMissingInfoReply(field: string): string {
 export function getSafeFallbackReply(): string {
   return "I want to be careful. I do not have enough verified information to answer that. Please contact your guardian, senior care center, or doctor.";
 }
-
-export const HEALTH_DISCLAIMER =
-  "I am not a doctor and this is not medical advice. Please consult your doctor for any health concerns.";

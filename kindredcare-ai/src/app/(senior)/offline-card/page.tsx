@@ -26,7 +26,7 @@ export default async function OfflineCardPage() {
       .eq("senior_id", senior.id)
       .eq("status", "active")
       .limit(1)
-      .single(),
+      .maybeSingle(),
   ]);
 
   const centerCenters = (centerLink as { care_centers?: { name?: string | null; phone?: string | null } | { name?: string | null; phone?: string | null }[] } | null)?.care_centers;

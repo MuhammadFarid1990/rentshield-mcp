@@ -33,7 +33,7 @@ export default async function HelpPage() {
       .eq("senior_id", senior.id)
       .eq("status", "active")
       .limit(1)
-      .single(),
+      .maybeSingle(),
   ]);
 
   const centerCenters = (centerLink as { care_centers?: { phone?: string | null } | { phone?: string | null }[] } | null)?.care_centers;
