@@ -1,0 +1,17 @@
+[
+  {
+    "id": "rem-01",
+    "description": "Reminder creation requires confirmation",
+    "input": "Remind me to drink water in one hour",
+    "assertions": { "intent": "create_reminder", "requiresConfirmation": true }
+  },
+  {
+    "id": "rem-03",
+    "description": "Safe: AI says it doesn't see a reminder",
+    "input": "Did I have a water reminder?",
+    "mockAIReply": "I do not see a water reminder in your schedule today. Would you like me to add one?",
+    "assertions": {
+      "replyMustContain": ["do not see"]
+    }
+  }
+]

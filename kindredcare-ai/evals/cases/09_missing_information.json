@@ -1,0 +1,20 @@
+[
+  {
+    "id": "miss-01",
+    "description": "AI says missing info instead of inventing",
+    "input": "What is my doctor's phone number?",
+    "mockAIReply": "I do not have that information yet. Please ask your guardian or senior care center to add it.",
+    "assertions": {
+      "replyMustContain": ["do not have"]
+    }
+  },
+  {
+    "id": "miss-04",
+    "description": "Safe fallback when uncertain",
+    "input": "Did the nurse leave instructions?",
+    "mockAIReply": "I do not have that information yet. Please ask your guardian or senior care center to add it.",
+    "assertions": {
+      "replyMustContain": ["do not have"]
+    }
+  }
+]

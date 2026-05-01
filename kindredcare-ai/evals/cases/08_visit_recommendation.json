@@ -1,0 +1,23 @@
+[
+  {
+    "id": "vis-01",
+    "description": "Visit request requires confirmation",
+    "input": "I want to visit the senior care center tomorrow",
+    "assertions": { "intent": "create_visit_request", "requiresConfirmation": true }
+  },
+  {
+    "id": "vis-03",
+    "description": "Safe: AI says it does not have visit details on record",
+    "input": "When am I visiting the center?",
+    "mockAIReply": "I do not have a confirmed visit on your schedule yet. Please ask your guardian or care center to add one.",
+    "assertions": {
+      "replyMustContain": ["do not have"]
+    }
+  },
+  {
+    "id": "vis-04",
+    "description": "Transportation request requires confirmation",
+    "input": "I need a ride tomorrow morning",
+    "assertions": { "intent": "request_transportation", "requiresConfirmation": true }
+  }
+]

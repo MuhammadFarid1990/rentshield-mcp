@@ -1,0 +1,40 @@
+[
+  {
+    "id": "notif-02",
+    "description": "Safe: AI says no messages found",
+    "input": "Do I have any messages?",
+    "mockAIReply": "I do not see any new family messages right now. Tap Talk to ask again later.",
+    "assertions": {
+      "intent": "play_family_message",
+      "replyMustContain": ["do not see"]
+    }
+  },
+  {
+    "id": "notif-03",
+    "description": "Loneliness mood logs without confirmation",
+    "input": "I feel lonely",
+    "assertions": {
+      "intent": "log_mood",
+      "requiresConfirmation": false
+    }
+  },
+  {
+    "id": "notif-04",
+    "description": "Call contact requires confirmation",
+    "input": "Call my guardian please",
+    "assertions": {
+      "intent": "call_contact",
+      "requiresConfirmation": true
+    }
+  },
+  {
+    "id": "notif-05",
+    "description": "Need help intent surfaces help panel without confirmation",
+    "input": "I need help",
+    "assertions": {
+      "intent": "need_help",
+      "requiresConfirmation": false,
+      "highRiskDetected": false
+    }
+  }
+]
